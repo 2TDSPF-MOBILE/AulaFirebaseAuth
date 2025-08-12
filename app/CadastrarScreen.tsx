@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {auth} from '../services/firebaseConfig'
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CadastroScreen() {
   // Estados para armazenar os valores digitados
@@ -7,14 +11,28 @@ export default function CadastroScreen() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
+  const router = useRouter()
+
   // Função para simular o envio do formulário
   const handleCadastro = () => {
     if (!nome || !email || !senha) {
       Alert.alert('Atenção', 'Preencha todos os campos!');
       return;
     }
-    Alert.alert('Sucesso', `Usuário ${nome} cadastrado com sucesso!`);
-    // Aqui você poderia fazer um fetch/axios para enviar ao backend
+      //Enviar para o backend
+  createUserWithEmailAndPassword(auth, email, senha)
+    .then(async(userCredential)=>{
+      const user = userCredential.user
+      await AsyncStorage.setItem('@user',JSON.stringify(user))
+      router.push("/HomeScreen")
+      //console.log(user)
+    })
+    .catch((error)=>{
+      const errorCode = error.code
+      const errorMessage = error.message
+      console.log("Error:",errorMessage)
+    })
+
   };
 
   return (
