@@ -1,7 +1,6 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { initializeAuth } from "firebase/auth";
 
 //Vai pegar o getReactNativePersistence mesmo sem tipagem

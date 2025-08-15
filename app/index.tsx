@@ -1,6 +1,10 @@
 import { Link } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+import { signInWithEmailAndPassword,sendPasswordResetEmail } from 'firebase/auth';
+import {auth} from '../services/firebaseConfig'
 
 export default function LoginScreen() {
   // Estados para armazenar os valores digitados
@@ -8,15 +12,60 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
+  const router = useRouter()//Hook de navegação..
+
+  const verificarUsuarioLogado = async () => {
+    try {
+      const usuarioSalvo = await AsyncStorage.getItem("@user")
+      if (usuarioSalvo) {
+        router.push('/HomeScreen')//Redireciona o usuário para tela de HomeScreen
+      }
+
+    } catch (error) {
+      console.log("Erro ao verificar login", error)
+    }
+  }
+  useEffect(() => {
+    verificarUsuarioLogado()
+  }, [])
+
+
   // Função para simular o envio do formulário
-  const handleLogin= () => {
-    if ( !email || !senha) {
+  const handleLogin = () => {
+    if (!email || !senha) {
       Alert.alert('Atenção', 'Preencha todos os campos!');
       return;
     }
-    Alert.alert('Sucesso ao logar', `Usuário logado com sucesso!`);
-    // Aqui você poderia fazer um fetch/axios para enviar ao backend
+    //backend do login
+    signInWithEmailAndPassword(auth, email, senha)
+      .then(async(userCredential) => {
+        const user = userCredential.user;
+        await AsyncStorage.setItem('@user',JSON.stringify(user))
+        router.push('/HomeScreen')
+
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log("Error",errorMessage)
+      });
   };
+
+  const esqueceuSenha = ()=>{
+    if(!email){
+      alert("Digite seu e-mail para recuperar a senha..")
+      return
+    }
+    sendPasswordResetEmail(auth,email)
+      .then(()=>{
+        alert("Enviado e-mail de recuração de senha")
+      })
+
+      .catch((error)=>{
+        console.log("Error:",error.message)
+        alert("Erro ao enviar e-mail de recuperação")
+      })
+  }
 
   return (
     <View style={styles.container}>
@@ -49,7 +98,9 @@ export default function LoginScreen() {
         <Text style={styles.textoBotao}>Login</Text>
       </TouchableOpacity>
 
-      <Link href="CadastrarScreen" style={{marginTop:20,color:'white',marginLeft:150}}>Cadastre-se</Link>
+      <Link href="CadastrarScreen" style={{ marginTop: 20, color: 'white', marginLeft: 150 }}>Cadastre-se</Link>
+
+      <Text style={{ marginTop: 20, color: 'white', marginLeft: 130 }} onPress={esqueceuSenha}>Esqueceu a senha</Text>
     </View>
   );
 }
