@@ -48,6 +48,10 @@ export default function LoginScreen() {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.log("Error",errorMessage)
+        if(errorCode === 'auth/invalid-credential'){
+          Alert.alert("Erro","Email ou senha digitados incorretamente.")
+        }
+        
       });
   };
 
