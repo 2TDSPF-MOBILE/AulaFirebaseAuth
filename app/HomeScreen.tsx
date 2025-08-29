@@ -1,4 +1,4 @@
-import { Text,Button,Alert,StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { Text,Button,Alert,StyleSheet, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -12,6 +12,12 @@ import { collection,addDoc,db,getDocs } from "../services/firebaseConfig";
 export default function HomeScreen(){
     const[nomeProduto,setNomeProduto]=useState('')
     const router = useRouter()//Hook de navegação
+    interface Item {
+        id:string,
+        nomeProduto:string,
+        isChecked:boolean
+    }
+    const[listaItems,setListaItems]=useState<Item[]>([])
 
    
 
@@ -25,8 +31,9 @@ export default function HomeScreen(){
                     ...doc.data(),
                     id:doc.id
                 })
-            })
-            console.log("Item carregados:",items)
+            })            
+            //console.log("Item carregados:",items)
+            setListaItems(items)//Envia para o estado
         }catch(e){
             console.log("Error ao buscar os items")
         }
@@ -34,16 +41,16 @@ export default function HomeScreen(){
 
     useEffect(()=>{
         buscarProdutos()
-    },[])
+    },[listaItems])
   
 
     const salvarProduto = async()=>{
         try{
-            const docRef = await addDoc(collection(db,'items'),{
+            await addDoc(collection(db,'items'),{
                 nomeProduto:nomeProduto,
                 isChecked:false
             })
-            console.log("Documento criado com o ID:",docRef.id)
+            Alert.alert("Sucesso","Produto salvo com sucesso.")
             setNomeProduto('')//Limpa o TextInput do nome do produto
         }catch(e){
             console.log("Error ao criar o documento.")
@@ -93,6 +100,19 @@ export default function HomeScreen(){
             <Button title="Excluir Conta" color='red' onPress={excluirConta}/>
             <Button title="Alterar Senha" color='orange' onPress={()=>router.push('/AlterarSenhaScreen')}/>
             
+            {listaItems.length<=0?<ActivityIndicator/>:(
+                <FlatList 
+                    data={listaItems}
+                    renderItem={({item})=>(
+                        <ItemLoja 
+                            nomeProduto={item.nomeProduto}
+                            id={item.id}
+                            isChecked={item.isChecked}
+                        />
+                    )}
+                />
+            )}
+
             <TextInput 
                 placeholder="Digite o nome do produto"
                 style={styles.input}
