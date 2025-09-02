@@ -5,8 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword,sendPasswordResetEmail } from 'firebase/auth';
 import {auth} from '../services/firebaseConfig'
+import ThemeToggleButton from '../src/components/ThemeToggleButton';
+import { useTheme } from '../src/context/ThemeContext';
 
 export default function LoginScreen() {
+  const{colors}=useTheme()
+
   // Estados para armazenar os valores digitados
 
   const [email, setEmail] = useState('');
@@ -72,15 +76,15 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Realizar login</Text>
+    <View style={[styles.container,{backgroundColor:colors.background}]}>
+      <Text style={[styles.titulo,{color:colors.text}]}>Realizar login</Text>
 
 
       {/* Campo Email */}
       <TextInput
         style={styles.input}
         placeholder="E-mail"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={colors.text}
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
@@ -91,7 +95,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Senha"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={colors.text}
         secureTextEntry
         value={senha}
         onChangeText={setSenha}
@@ -102,9 +106,11 @@ export default function LoginScreen() {
         <Text style={styles.textoBotao}>Login</Text>
       </TouchableOpacity>
 
-      <Link href="CadastrarScreen" style={{ marginTop: 20, color: 'white', marginLeft: 150 }}>Cadastre-se</Link>
+      <ThemeToggleButton/>
 
-      <Text style={{ marginTop: 20, color: 'white', marginLeft: 130 }} onPress={esqueceuSenha}>Esqueceu a senha</Text>
+      <Link href="CadastrarScreen" style={{ marginTop: 20, color:colors.text, marginLeft: 150 }}>Cadastre-se</Link>
+
+      <Text style={{ marginTop: 20, color:colors.text, marginLeft: 130 }} onPress={esqueceuSenha}>Esqueceu a senha</Text>
     </View>
   );
 }
@@ -113,20 +119,16 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
     justifyContent: 'center',
     padding: 20,
   },
   titulo: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 30,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#1E1E1E',
-    color: '#fff',
     borderRadius: 10,
     padding: 15,
     marginBottom: 15,

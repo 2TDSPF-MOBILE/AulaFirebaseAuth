@@ -4,8 +4,10 @@ import {auth} from '../services/firebaseConfig'
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../src/context/ThemeContext';
 
 export default function CadastroScreen() {
+  const{colors}=useTheme()
   // Estados para armazenar os valores digitados
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -36,7 +38,7 @@ export default function CadastroScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,{backgroundColor:colors.background}]}>
       <Text style={styles.titulo}>Criar Conta</Text>
 
       {/* Campo Nome */}
@@ -93,8 +95,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#1E1E1E',
-    color: '#fff',
     borderRadius: 10,
     padding: 15,
     marginBottom: 15,
