@@ -2,14 +2,15 @@ import { Text,Button,Alert,StyleSheet, TextInput, KeyboardAvoidingView, Platform
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import ItemLoja from "../components/itemLoja";
+import ItemLoja from "../src/components/itemLoja";
 import { useEffect, useState } from "react";
-import {auth} from '../services/firebaseConfig'
+import {auth} from '../src/services/firebaseConfig'
 import { deleteUser } from "firebase/auth";
-import { collection,addDoc,db,getDocs } from "../services/firebaseConfig";
-
+import { collection,addDoc,db,getDocs } from "../src/services/firebaseConfig";
+import { useTheme } from "../src/context/ThemeContext";
 
 export default function HomeScreen(){
+    const{colors}=useTheme()
     const[nomeProduto,setNomeProduto]=useState('')
     const router = useRouter()//Hook de navegação
     interface Item {
@@ -88,7 +89,7 @@ export default function HomeScreen(){
     }
 
     return(
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container,{backgroundColor:colors.background}]}>
             <KeyboardAvoidingView 
                 style={styles.container}
                 behavior={Platform.OS === 'ios'?'padding':'height'} //no ios utiliza o padding, no android é o utilizado height

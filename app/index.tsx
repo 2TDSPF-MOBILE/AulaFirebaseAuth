@@ -4,11 +4,17 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword,sendPasswordResetEmail } from 'firebase/auth';
-import {auth} from '../services/firebaseConfig'
+import {auth} from '../src/services/firebaseConfig'
 import ThemeToggleButton from '../src/components/ThemeToggleButton';
 import { useTheme } from '../src/context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen() {
+  //Hook do i18next que forneca a função 't' para buscar
+  //tradução de acordo com a chave
+  const{t,i18n}=useTranslation()
+  
+  //Trazendo o Colors do nosso arquivo ThemeContext
   const{colors}=useTheme()
 
   // Estados para armazenar os valores digitados
@@ -17,6 +23,11 @@ export default function LoginScreen() {
   const [senha, setSenha] = useState('');
 
   const router = useRouter()//Hook de navegação..
+
+  //Função para mudar idioma
+  const mudarIdioma = (lang:string)=>{
+    i18n.changeLanguage(lang)
+  }
 
   const verificarUsuarioLogado = async () => {
     try {
@@ -77,12 +88,12 @@ export default function LoginScreen() {
 
   return (
     <View style={[styles.container,{backgroundColor:colors.background}]}>
-      <Text style={[styles.titulo,{color:colors.text}]}>Realizar login</Text>
+      <Text style={[styles.titulo,{color:colors.text}]}>{t("login")}</Text>
 
 
       {/* Campo Email */}
       <TextInput
-        style={styles.input}
+        style={[styles.input,{color:colors.text}]}
         placeholder="E-mail"
         placeholderTextColor={colors.text}
         keyboardType="email-address"
@@ -93,8 +104,8 @@ export default function LoginScreen() {
 
       {/* Campo Senha */}
       <TextInput
-        style={styles.input}
-        placeholder="Senha"
+        style={[styles.input,{color:colors.text}]}
+        placeholder={t("password")}
         placeholderTextColor={colors.text}
         secureTextEntry
         value={senha}
@@ -108,9 +119,21 @@ export default function LoginScreen() {
 
       <ThemeToggleButton/>
 
-      <Link href="CadastrarScreen" style={{ marginTop: 20, color:colors.text, marginLeft: 150 }}>Cadastre-se</Link>
+      <TouchableOpacity onPress={()=>mudarIdioma("pt")}>
+        <Text>PT</Text>
+      </TouchableOpacity>
 
-      <Text style={{ marginTop: 20, color:colors.text, marginLeft: 130 }} onPress={esqueceuSenha}>Esqueceu a senha</Text>
+      <TouchableOpacity onPress={()=>mudarIdioma("en")}>
+        <Text>EN</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={()=>mudarIdioma("es")}>
+        <Text>ES</Text>
+      </TouchableOpacity>
+
+      <Link href="CadastrarScreen" style={{ marginTop: 20, color:colors.text, marginLeft: 150 }}>{t("register")}</Link>
+
+      <Text style={{ marginTop: 20, color:colors.text, marginLeft: 130 }} onPress={esqueceuSenha}>{t("forgotPassword")}</Text>
     </View>
   );
 }
