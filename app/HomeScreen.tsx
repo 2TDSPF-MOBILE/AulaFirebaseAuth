@@ -13,9 +13,8 @@ import * as Notifications from "expo-notifications"
 //Configuração global da notificação
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
-        shouldShowBanner: true,//Exibir o banner da notificação
+        shouldShowAlert:true, //SDK 52 usa Alert
         shouldPlaySound: true,//toca o som
-        shouldShowList: true,//Mostra o histórico
         shouldSetBadge: false//não altera o badge do app
     })
 })
@@ -25,6 +24,8 @@ export default function HomeScreen() {
     const { colors } = useTheme()
     const [nomeProduto, setNomeProduto] = useState('')
     const router = useRouter()//Hook de navegação
+    const[expoPushToken,setExpoPushToken]= useState<string|null>(null)
+
     interface Item {
         id: string,
         nomeProduto: string,
@@ -102,12 +103,34 @@ export default function HomeScreen() {
                 body:"Aproveite as promoções de hoje 12/09!"
             },
             trigger:{
-                type:"timeInterval", //tipo de trigger:intervalo de tempo
                 seconds:2, //será aguardado 2 segundos para subir a notificação
                 repeats:false
             } as Notifications.TimeIntervalTriggerInput
         })
     }
+
+    const registerForPushNotificationsAsync = async ():Promise<string|null> =>{
+        try{
+            const tokenData = await Notifications.getExpoPushTokenAsync()
+            const token = tokenData.data
+            console.log("Token de Notificação gerado: ", token)
+            return token
+        }
+        catch(error){
+            console.log("Error ao gerar token:", error)
+            return null
+        }
+    }
+    useEffect(()=>{
+        (async()=>{
+            //Chama a função de criação de token de notificação
+            const token = await registerForPushNotificationsAsync()
+            //Armazenar esse token no estado
+            setExpoPushToken(token)
+        })()
+    },[])
+
+
     useEffect(()=>{
         (async()=>{
             const{status:existingStatus} = await Notifications.getPermissionsAsync()
